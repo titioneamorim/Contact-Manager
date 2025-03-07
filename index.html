@@ -3,81 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestão de Contatos</title>
+    <title>Sistema de Gestão Escolar</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-[Inter]">
+<body class="bg-gray-100 min-h-screen">
     <!-- Login Page -->
     <div id="pagina-login" class="container mx-auto px-4 py-8">
-        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
             <h1 class="text-2xl font-bold text-center mb-6">Login</h1>
             <form id="form-login" class="space-y-4">
                 <div>
-                    <label class="block text-gray-700 mb-2">Email</label>
-                    <input type="email" id="login-email" class="w-full p-2 border rounded" required>
+                    <label class="block text-gray-700">Email</label>
+                    <input type="email" id="login-email" class="w-full border rounded px-3 py-2" required>
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2">Senha</label>
-                    <input type="password" id="login-senha" class="w-full p-2 border rounded" required>
+                    <label class="block text-gray-700">Senha</label>
+                    <input type="password" id="login-senha" class="w-full border rounded px-3 py-2" required>
                 </div>
-                <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <button type="submit" class="w-full bg-blue-500 text-white rounded py-2 hover:bg-blue-600">
                     Entrar
                 </button>
-                <p class="text-center">
-                    <a href="#" onclick="mostrarCadastro()" class="text-blue-500 hover:text-blue-700">
-                        Criar nova conta
-                    </a>
-                </p>
             </form>
+            <div class="mt-4 text-center">
+                <a href="#" onclick="mostrarCadastro()" class="text-blue-500 hover:text-blue-700">
+                    Criar nova conta
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Register Page -->
+    <!-- Registration Page -->
     <div id="pagina-cadastro" class="container mx-auto px-4 py-8 hidden">
-        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
             <h1 class="text-2xl font-bold text-center mb-6">Cadastro</h1>
             <form id="form-cadastro" class="space-y-4">
                 <div>
-                    <label class="block text-gray-700 mb-2">Nome</label>
-                    <input type="text" id="cadastro-nome" class="w-full p-2 border rounded" required>
+                    <label class="block text-gray-700">Nome</label>
+                    <input type="text" id="cadastro-nome" class="w-full border rounded px-3 py-2" required>
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2">Email</label>
-                    <input type="email" id="cadastro-email" class="w-full p-2 border rounded" required>
+                    <label class="block text-gray-700">Email</label>
+                    <input type="email" id="cadastro-email" class="w-full border rounded px-3 py-2" required>
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2">Senha</label>
-                    <input type="password" id="cadastro-senha" class="w-full p-2 border rounded" required>
+                    <label class="block text-gray-700">Senha</label>
+                    <input type="password" id="cadastro-senha" class="w-full border rounded px-3 py-2" required>
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2">Tipo de Usuário</label>
-                    <select id="cadastro-tipo" class="w-full p-2 border rounded">
+                    <label class="block text-gray-700">Tipo de Usuário</label>
+                    <select id="cadastro-tipo" class="w-full border rounded px-3 py-2" required>
                         <option value="professor">Professor</option>
                         <option value="coordenador">Coordenador</option>
                         <option value="admin">Administrador</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                <button type="submit" class="w-full bg-green-500 text-white rounded py-2 hover:bg-green-600">
                     Cadastrar
                 </button>
-                <p class="text-center">
-                    <a href="#" onclick="mostrarLogin()" class="text-blue-500 hover:text-blue-700">
-                        Voltar para login
-                    </a>
-                </p>
             </form>
+            <div class="mt-4 text-center">
+                <a href="#" onclick="mostrarLogin()" class="text-blue-500 hover:text-blue-700">
+                    Voltar para login
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Main App -->
     <div id="app" class="hidden">
-        <!-- Header/Navbar -->
-        <nav class="bg-white shadow-md">
-            <div class="container mx-auto px-4 py-3">
+        <!-- Header -->
+        <header class="bg-white shadow">
+            <div class="container mx-auto px-4 py-4">
                 <div class="flex justify-between items-center">
-                    <h1 class="text-xl font-bold">Sistema de Gestão</h1>
+                    <h1 class="text-xl font-semibold">Sistema de Gestão Escolar</h1>
                     <div class="flex items-center space-x-4">
                         <span id="usuario-nome" class="text-gray-600"></span>
                         <button onclick="logout()" class="text-red-500 hover:text-red-700">
@@ -86,105 +85,105 @@
                     </div>
                 </div>
             </div>
-        </nav>
+        </header>
 
-        <!-- Página Principal (Lista de Turmas) -->
+        <!-- Turmas Page -->
         <div id="pagina-turmas" class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">Turmas</h1>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Turmas</h2>
                 <button onclick="abrirModalTurma()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    <i class="fas fa-plus mr-2"></i>Nova Turma
+                    <i class="fas fa-plus"></i> Nova Turma
                 </button>
             </div>
-            
-            <div id="lista-turmas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- As turmas serão inseridas aqui dinamicamente -->
+            <div id="lista-turmas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Turmas will be dynamically added here -->
             </div>
         </div>
 
-        <!-- Página de Detalhes da Turma -->
+        <!-- Turma Details Page -->
         <div id="pagina-turma" class="container mx-auto px-4 py-8 hidden">
-            <div class="flex items-center mb-8">
-                <button onclick="voltarParaTurmas()" class="text-gray-600 hover:text-gray-800 mr-4">
-                    <i class="fas fa-arrow-left"></i>
+            <div class="mb-6">
+                <button onclick="voltarParaTurmas()" class="text-blue-500 hover:text-blue-700">
+                    <i class="fas fa-arrow-left"></i> Voltar para Turmas
                 </button>
-                <h1 class="text-3xl font-bold text-gray-800" id="titulo-turma">Detalhes da Turma</h1>
             </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <div class="flex justify-between items-center mb-4">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-start mb-6">
                     <div>
-                        <h2 class="text-xl font-semibold" id="nome-turma"></h2>
-                        <p class="text-gray-600" id="status-turma"></p>
+                        <h2 id="titulo-turma" class="text-2xl font-semibold mb-2"></h2>
+                        <p id="status-turma" class="text-gray-600"></p>
                     </div>
-                    <div class="space-x-2">
-                        <button onclick="editarTurma()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
-                            <i class="fas fa-edit mr-2"></i>Editar Turma
-                        </button>
+                    <button onclick="editarTurma()" class="text-blue-500 hover:text-blue-700">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                </div>
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold">Alunos</h3>
                         <button onclick="abrirModalAluno()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                            <i class="fas fa-plus mr-2"></i>Novo Aluno
+                            <i class="fas fa-plus"></i> Novo Aluno
                         </button>
                     </div>
-                </div>
-                <div id="lista-alunos" class="space-y-4">
-                    <!-- Os alunos serão inseridos aqui dinamicamente -->
+                    <div id="lista-alunos" class="space-y-4">
+                        <!-- Alunos will be dynamically added here -->
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Página de Detalhes do Aluno -->
+        <!-- Aluno Details Page -->
         <div id="pagina-aluno" class="container mx-auto px-4 py-8 hidden">
-            <div class="flex items-center mb-8">
-                <button onclick="voltarParaTurma()" class="text-gray-600 hover:text-gray-800 mr-4">
-                    <i class="fas fa-arrow-left"></i>
+            <div class="mb-6">
+                <button onclick="voltarParaTurma()" class="text-blue-500 hover:text-blue-700">
+                    <i class="fas fa-arrow-left"></i> Voltar para Turma
                 </button>
-                <h1 class="text-3xl font-bold text-gray-800" id="titulo-aluno">Detalhes do Aluno</h1>
             </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <div class="flex justify-between items-center mb-6">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-start mb-6">
                     <div>
-                        <h2 class="text-xl font-semibold" id="nome-aluno"></h2>
-                        <p class="text-gray-600" id="info-aluno"></p>
+                        <h2 id="titulo-aluno" class="text-2xl font-semibold mb-2"></h2>
+                        <p id="info-aluno" class="text-gray-600"></p>
                     </div>
-                    <div class="space-x-2">
-                        <button onclick="editarAluno()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
-                            <i class="fas fa-edit mr-2"></i>Editar
-                        </button>
-                        <button onclick="abrirModalContato()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
-                            <i class="fas fa-plus mr-2"></i>Novo Contato
-                        </button>
-                    </div>
+                    <button onclick="editarAluno()" class="text-blue-500 hover:text-blue-700">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
                 </div>
-                <div id="lista-contatos" class="space-y-4">
-                    <!-- Os contatos serão inseridos aqui dinamicamente -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold">Contatos</h3>
+                        <button onclick="abrirModalContato()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            <i class="fas fa-plus"></i> Novo Contato
+                        </button>
+                    </div>
+                    <div id="lista-contatos" class="space-y-4">
+                        <!-- Contatos will be dynamically added here -->
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal de Nova/Editar Turma -->
-        <div id="modal-turma" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+        <!-- Modal Turma -->
+        <div id="modal-turma" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
             <div class="bg-white rounded-lg p-8 max-w-md w-full">
-                <h2 class="text-2xl font-bold mb-4" id="titulo-modal-turma">Nova Turma</h2>
-                <form id="form-turma" class="space-y-4">
+                <h3 id="titulo-modal-turma" class="text-xl font-semibold mb-4">Nova Turma</h3>
+                <form id="form-turma">
                     <input type="hidden" id="turma-id">
-                    <div>
+                    <div class="mb-4">
                         <label class="block text-gray-700 mb-2">Nome da Turma</label>
-                        <input type="text" id="input-nome-turma" class="w-full p-2 border rounded" required>
+                        <input type="text" id="input-nome-turma" class="w-full border rounded px-3 py-2" required>
                     </div>
-                    <div>
+                    <div class="mb-4">
                         <label class="block text-gray-700 mb-2">Status</label>
-                        <select id="input-status-turma" class="w-full p-2 border rounded">
+                        <select id="input-status-turma" class="w-full border rounded px-3 py-2" required>
                             <option value="ativa">Ativa</option>
                             <option value="inativa">Inativa</option>
                         </select>
                     </div>
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" onclick="fecharModalTurma()" 
-                                class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-100">
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" onclick="fecharModalTurma()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
                             Cancelar
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                             Salvar
                         </button>
                     </div>
@@ -192,15 +191,66 @@
             </div>
         </div>
 
-        <!-- Outros modais permanecem os mesmos -->
-        <!-- Modal de Novo Aluno -->
-        <div id="modal-aluno" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-            <!-- ... (mesmo conteúdo) ... -->
+        <!-- Modal Aluno -->
+        <div id="modal-aluno" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <h3 class="text-xl font-semibold mb-4">Novo Aluno</h3>
+                <form id="form-aluno">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Nome</label>
+                        <input type="text" id="input-nome-aluno" class="w-full border rounded px-3 py-2" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">CPF</label>
+                        <input type="text" id="input-cpf-aluno" class="w-full border rounded px-3 py-2" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Telefone</label>
+                        <input type="text" id="input-telefone-aluno" class="w-full border rounded px-3 py-2" required>
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" onclick="fecharModalAluno()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <!-- Modal de Novo Contato -->
-        <div id="modal-contato" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-            <!-- ... (mesmo conteúdo) ... -->
+        <!-- Modal Contato -->
+        <div id="modal-contato" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <h3 class="text-xl font-semibold mb-4">Novo Contato</h3>
+                <form id="form-contato">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Tipo</label>
+                        <select id="input-tipo-contato" class="w-full border rounded px-3 py-2" required>
+                            <option value="telefone">Telefone</option>
+                            <option value="email">Email</option>
+                            <option value="whatsapp">WhatsApp</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Usuário</label>
+                        <input type="text" id="input-usuario-contato" class="w-full border rounded px-3 py-2" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Descrição</label>
+                        <textarea id="input-descricao-contato" class="w-full border rounded px-3 py-2" rows="3" required></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" onclick="fecharModalContato()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
