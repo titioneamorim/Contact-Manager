@@ -238,9 +238,265 @@ const App = {
         }
     },
 
-    // [Previous App methods remain the same...]
-    
-    // Add all the previous App methods here...
+    // Métodos para Turmas
+    adicionarTurma(nome, status) {
+        const id = Date.now().toString();
+        const turma = new Turma(id, nome, status, Auth.usuarioAtual.id);
+        this.turmas.push(turma);
+        this.salvarDados();
+        this.atualizarInterface();
+        return true;
+    },
+
+    editarTurma(id, nome, status) {
+        const turma = this.turmas.find(t => t.id === id);
+        if (turma && this.podeEditarTurma(turma)) {
+            turma.nome = nome;
+            turma.status = status;
+            this.salvarDados();
+            this.atualizarInterface();
+            return true;
+        }
+        return false;
+    },
+
+    removerTurma(id) {
+        const turma = this.turmas.find(t => t.id === id);
+        if (turma && this.podeEditarTurma(turma)) {
+            this.turmas = this.turmas.filter(t => t.id !== id);
+            this.salvarDados();
+            this.atualizarInterface();
+            return true;
+        }
+        return false;
+    },
+
+    podeEditarTurma(turma) {
+        return Auth.temPermissao('admin') || 
+               (Auth.temPermissao('coordenador')) ||
+               (Auth.temPermissao('professor') && turma.criadoPor === Auth.usuarioAtual.id);
+    },
+
+    // Métodos para Alunos
+    adicionarAluno(turmaId, nome, cpf, telefone) {
+        const turma = this.turmas.find(t => t.id === turmaId);
+        if (turma && this.podeEditarTurma(turma)) {
+            const id = Date.now().toString();
+            const aluno = new Aluno(id, nome, cpf, telefone);
+            turma.alunos.push(aluno);
+            this.salvarDados();
+            this.atualizarInterface();
+            return true;
+        }
+        return false;
+    },
+
+    editarAluno(turmaId, alunoId, nome, cpf, telefone) {
+        const turma = this.turmas.find(t => t.id === turmaId);
+        if (turma && this.podeEditarTurma(turma)) {
+            const aluno = turma.alunos.find(a => a.id === alunoId);
+            if (aluno) {
+                aluno.nome = nome;
+                aluno.cpf = cpf;
+                aluno.telefone = telefone;
+                this.salvarDados();
+                this.atualizarInterface();
+                return true;
+            }
+        }
+        return false;
+    },
+
+    removerAluno(turmaId, alunoId) {
+        const turma = this.turmas.find(t => t.id === turmaId);
+        if (turma && this.podeEditarTurma(turma)) {
+            turma.alunos = turma.alunos.filter(a => a.id !== alunoId);
+            this.salvarDados();
+            this.atualizarInterface();
+            return true;
+        }
+        return false;
+    },
+
+    // Métodos para Contatos
+    adicionarContato(turmaId, alunoId, tipo, usuario, descricao) {
+        const turma = this.turmas.find(t => t.id === turmaId);
+        if (turma) {
+            const aluno = turma.alunos.find(a => a.id === alunoId);
+            if (aluno) {
+                const id = Date.now().toString();
+                const contato = new Contato(id, tipo, usuario, descricao);
+                aluno.contatos.push(contato);
+                this.salvarDados();
+                this.atualizarInterface();
+                return true;
+            }
+        }
+        return false;
+    },
+
+    // Persistência de dados
+    salvarDados() {
+        Storage.set('turmas', this.turmas);
+    },
+
+    // Navegação
+    mostrarPaginaTurmas() {
+        document.getElementById('pagina-turmas').classList.remove('hidden');
+        document.getElementById('pagina-turma').classList.add('hidden');
+        document.getElementById('pagina-aluno').classList.add('hidden');
+        this.turmaAtual = null;
+        this.alunoAtual = null;
+        this.atualizarListaTurmas();
+    },
+
+    mostrarPaginaTurma(turmaId) {
+        this.turmaAtual = this.turmas.find(t => t.id === turmaId);
+        if (this.turmaAtual) {
+            document.getElementById('pagina-turmas').classList.add('hidden');
+            document.getElementById('pagina-turma').classList.remove('hidden');
+            document.getElementById('pagina-aluno').classList.add('hidden');
+            this.atualizarDetalhesTurma();
+        }
+    },
+
+    mostrarPaginaAluno(turmaId, alunoId) {
+        const turma = this.turmas.find(t => t.id === turmaId);
+        if (turma) {
+            this.turmaAtual = turma;
+            this.alunoAtual = turma.alunos.find(a => a.id === alunoId);
+            if (this.alunoAtual) {
+                document.getElementById('pagina-turmas').classList.add('hidden');
+                document.getElementById('pagina-turma').classList.add('hidden');
+                document.getElementById('pagina-aluno').classList.remove('hidden');
+                this.atualizarDetalhesAluno();
+            }
+        }
+    },
+
+    // Atualização da interface
+    atualizarInterface() {
+        if (this.alunoAtual) {
+            this.atualizarDetalhesAluno();
+        } else if (this.turmaAtual) {
+            this.atualizarDetalhesTurma();
+        } else {
+            this.atualizarListaTurmas();
+        }
+    },
+
+    atualizarListaTurmas() {
+        const listaTurmas = document.getElementById('lista-turmas');
+        listaTurmas.innerHTML = '';
+
+        this.turmas.forEach(turma => {
+            const podeEditar = this.podeEditarTurma(turma);
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow';
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <h2 class="text-xl font-semibold">${turma.nome}</h2>
+                    <span class="px-2 py-1 text-sm rounded ${
+                        turma.status === 'ativa' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }">${turma.status}</span>
+                </div>
+                <p class="text-gray-600 mb-4">${turma.alunos.length} alunos</p>
+                <div class="flex justify-between items-center">
+                    <button onclick="App.mostrarPaginaTurma('${turma.id}')" 
+                            class="text-blue-500 hover:text-blue-700">
+                        Ver detalhes
+                    </button>
+                    ${podeEditar ? `
+                        <button onclick="App.removerTurma('${turma.id}')" 
+                                class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            listaTurmas.appendChild(card);
+        });
+    },
+
+    atualizarDetalhesTurma() {
+        if (!this.turmaAtual) return;
+
+        const podeEditar = this.podeEditarTurma(this.turmaAtual);
+        
+        document.getElementById('titulo-turma').textContent = 'Turma: ' + this.turmaAtual.nome;
+        document.getElementById('nome-turma').textContent = this.turmaAtual.nome;
+        document.getElementById('status-turma').textContent = 'Status: ' + this.turmaAtual.status;
+
+        // Mostrar/ocultar botões de edição baseado nas permissões
+        const btnEditarTurma = document.querySelector('button[onclick="editarTurma()"]');
+        const btnNovoAluno = document.querySelector('button[onclick="abrirModalAluno()"]');
+        if (btnEditarTurma) btnEditarTurma.style.display = podeEditar ? '' : 'none';
+        if (btnNovoAluno) btnNovoAluno.style.display = podeEditar ? '' : 'none';
+
+        const listaAlunos = document.getElementById('lista-alunos');
+        listaAlunos.innerHTML = '';
+
+        this.turmaAtual.alunos.forEach(aluno => {
+            const card = document.createElement('div');
+            card.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors cursor-pointer';
+            card.onclick = () => this.mostrarPaginaAluno(this.turmaAtual.id, aluno.id);
+            card.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-medium">${aluno.nome}</h3>
+                        <p class="text-sm text-gray-600">CPF: ${aluno.cpf}</p>
+                        <p class="text-sm text-gray-600">Tel: ${aluno.telefone}</p>
+                    </div>
+                    <span class="text-sm text-gray-500">${aluno.contatos.length} contatos</span>
+                </div>
+            `;
+            listaAlunos.appendChild(card);
+        });
+    },
+
+    atualizarDetalhesAluno() {
+        if (!this.alunoAtual) return;
+
+        const podeEditar = this.podeEditarTurma(this.turmaAtual);
+
+        document.getElementById('titulo-aluno').textContent = this.alunoAtual.nome;
+        document.getElementById('nome-aluno').textContent = this.alunoAtual.nome;
+        document.getElementById('info-aluno').textContent = `CPF: ${this.alunoAtual.cpf} | Tel: ${this.alunoAtual.telefone}`;
+
+        // Mostrar/ocultar botões de edição baseado nas permissões
+        const btnEditarAluno = document.querySelector('button[onclick="editarAluno()"]');
+        if (btnEditarAluno) btnEditarAluno.style.display = podeEditar ? '' : 'none';
+
+        const listaContatos = document.getElementById('lista-contatos');
+        listaContatos.innerHTML = '';
+
+        this.alunoAtual.contatos.forEach(contato => {
+            const card = document.createElement('div');
+            card.className = 'bg-gray-50 rounded-lg p-4';
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <span class="px-2 py-1 text-sm rounded ${this.getContatoTypeClass(contato.tipo)}">
+                        ${contato.tipo}
+                    </span>
+                    <span class="text-sm text-gray-500">
+                        ${new Date(contato.dataHora).toLocaleString()}
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">Por: ${contato.usuario}</p>
+                <p class="text-gray-700">${contato.descricao}</p>
+            `;
+            listaContatos.appendChild(card);
+        });
+    },
+
+    getContatoTypeClass(tipo) {
+        const classes = {
+            telefone: 'bg-blue-100 text-blue-800',
+            email: 'bg-yellow-100 text-yellow-800',
+            whatsapp: 'bg-green-100 text-green-800'
+        };
+        return classes[tipo] || 'bg-gray-100 text-gray-800';
+    }
 };
 
 // Make functions globally available
