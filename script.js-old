@@ -9,6 +9,8 @@ class Usuario {
     }
 }
 
+
+
 class Turma {
     constructor(id, nome, status, criadoPor) {
         this.id = id;
