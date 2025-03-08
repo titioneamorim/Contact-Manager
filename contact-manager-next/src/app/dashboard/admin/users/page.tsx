@@ -50,6 +50,7 @@ export default function UsersPage() {
 
       if (!res.ok) throw new Error('Erro ao excluir usuário.');
 
+      
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
     } catch (error) {
       console.error(error);
