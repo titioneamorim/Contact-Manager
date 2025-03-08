@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("TEACHER") // "ADMIN", "COORDINATOR", "TEACHER"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  classes   Class[]
+}
+
+model Class {
+  id          String    @id @default(cuid())
+  name        String
+  status      String    @default("ACTIVE") // "ACTIVE", "INACTIVE"
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdById String
+  students    Student[]
+}
+
+model Student {
+  id        String    @id @default(cuid())
+  name      String
+  cpf       String    @unique
+  phone     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  class     Class     @relation(fields: [classId], references: [id])
+  classId   String
+  contacts  Contact[]
+}
+
+model Contact {
+  id          String   @id @default(cuid())
+  type        String   // "PHONE", "EMAIL", "WHATSAPP"
+  username    String
+  description String
+  createdAt   DateTime @default(now())
+  student     Student  @relation(fields: [studentId], references: [id])
+  studentId   String
+}
