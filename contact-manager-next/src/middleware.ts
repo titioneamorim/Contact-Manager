@@ -1,43 +1,33 @@
-import { withAuth } from 'next-auth/middleware'
-import { NextResponse } from 'next/server'
+import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
-    const token = req.nextauth.token
-    const path = req.nextUrl.pathname
+    const token = req.nextauth.token;
+    const path = req.nextUrl.pathname;
 
-    // Public paths that don't require authentication
-    if (path === '/login' || path === '/register') {
-      if (token) {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
-      }
-      return NextResponse.next()
+    // Evita loop de redirecionamento
+    if (path === "/login" && token) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
-    // Protected paths that require authentication
-    if (!token) {
-      return NextResponse.redirect(new URL('/login', req.url))
+    if (path.startsWith("/admin") && (!token || token.role !== "ADMIN")) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
-    // Admin-only paths
-    if (path.startsWith('/admin') && token.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
+    if (!token && !["/login", "/register"].includes(path)) {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    return NextResponse.next()
+    return NextResponse.next();
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ token }) => true, // Permite que o middleware sempre rode
     },
   }
-)
+);
 
 export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/admin/:path*',
-    '/login',
-    '/register',
-  ],
-}
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/login", "/register"],
+};

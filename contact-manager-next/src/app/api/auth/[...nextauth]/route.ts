@@ -1,42 +1,38 @@
-import { prisma } from '@/lib/prisma'
-import { compare } from 'bcryptjs'
-import NextAuth, { type NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import { prisma } from "@/lib/prisma";
+import { compare } from "bcryptjs";
+import NextAuth, { type NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
   pages: {
-    signIn: '/login',
+    signIn: "/login", // Página de login
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   providers: [
     CredentialsProvider({
-      name: 'Sign in',
+      name: "Sign in",
       credentials: {
-        email: {
-          label: 'Email',
-          type: 'email',
-          placeholder: 'example@example.com',
-        },
-        password: {
-          label: 'Password',
-          type: 'password',
-        },
+        email: { label: "Email", type: "email", placeholder: "example@example.com" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
-          return null
+          throw new Error("E-mail e senha são obrigatórios!");
         }
 
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        })
+          where: { email: credentials.email },
+        });
 
-        if (!user || !(await compare(credentials.password, user.password))) {
-          return null
+        if (!user) {
+          throw new Error("Usuário não encontrado.");
+        }
+
+        const isPasswordCorrect = await compare(credentials.password, user.password);
+        if (!isPasswordCorrect) {
+          throw new Error("Senha incorreta.");
         }
 
         return {
@@ -44,33 +40,32 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-        }
+        };
       },
     }),
   ],
   callbacks: {
-    session: ({ session, token }) => {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: token.id,
-          role: token.role,
-        },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
+      return session;
     },
-    jwt: ({ token, user }) => {
+    async jwt({ token, user }) {
       if (user) {
-        return {
-          ...token,
-          id: user.id,
-          role: user.role,
-        }
+        token.id = user.id;
+        token.role = user.role;
       }
-      return token
+      return token;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) return url;
+      return baseUrl + "/dashboard"; // Após login, sempre redireciona para /dashboard
     },
   },
-}
+  secret: process.env.NEXTAUTH_SECRET, // Certifique-se de que está definido no .env
+};
 
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
