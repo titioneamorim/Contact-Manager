@@ -1,142 +1,136 @@
-import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth'
-import { NextRequest, NextResponse } from 'next/server'
-import { authOptions } from '../auth/[...nextauth]/route'
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ message: 'Não autorizado' }, { status: 401 });
   }
 
   try {
-    const { name, cpf, phone, classId } = await req.json()
+    const { name, cpf, phone, classId } = await req.json();
 
-    // Validate required fields
+    // 🔹 Validação de campos obrigatórios
     if (!name || !cpf || !phone || !classId) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { message: 'Todos os campos são obrigatórios' },
         { status: 400 }
-      )
+      );
     }
 
-    // Check if class exists and user has permission
+    // 🔹 Verifica se a classe existe
     const class_ = await prisma.class.findUnique({
       where: { id: classId },
       select: { createdById: true },
-    })
+    });
 
     if (!class_) {
       return NextResponse.json(
-        { error: 'Class not found' },
+        { message: 'Turma não encontrada' },
         { status: 404 }
-      )
+      );
     }
 
-    // Check permissions
+    // 🔹 Verifica permissões do usuário
     if (
       class_.createdById !== session.user.id &&
       session.user.role !== 'ADMIN' &&
-      session.user.role !== 'COORDINATOR'
+      session.user.role !== 'COORDENADOR'
     ) {
       return NextResponse.json(
-        { error: 'Not authorized to add students to this class' },
+        { message: 'Você não tem permissão para adicionar alunos nesta turma' },
         { status: 403 }
-      )
+      );
     }
 
-    // Check if CPF is already registered
+    // 🔹 Verifica se o CPF já está cadastrado
     const existingStudent = await prisma.student.findUnique({
       where: { cpf },
-    })
+    });
 
     if (existingStudent) {
       return NextResponse.json(
-        { error: 'A student with this CPF already exists' },
+        { message: 'CPF já cadastrado' }, // ✅ Mensagem corrigida
         { status: 400 }
-      )
+      );
     }
 
-    // Create student
+    // 🔹 Criação do aluno
     const student = await prisma.student.create({
-      data: {
-        name,
-        cpf,
-        phone,
-        classId,
-      },
-      include: {
-        contacts: true,
-      },
-    })
+      data: { name, cpf, phone, classId },
+      include: { contacts: true },
+    });
 
-    return NextResponse.json(student, { status: 201 })
+    return NextResponse.json(student, { status: 201 });
   } catch (error) {
-    console.error('Error creating student:', error)
+    console.error('Erro ao cadastrar aluno:', error);
+
     return NextResponse.json(
-      { error: 'Failed to create student' },
+      { message: 'Erro interno ao cadastrar aluno' },
       { status: 500 }
-    )
+    );
   }
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ message: 'Não autorizado' }, { status: 401 });
   }
 
   try {
-    const { searchParams } = new URL(req.url)
-    const classId = searchParams.get('classId')
+    const { searchParams } = new URL(req.url);
+    const classId = searchParams.get('classId');
 
     if (!classId) {
       return NextResponse.json(
-        { error: 'Class ID is required' },
+        { message: 'O ID da turma é obrigatório' },
         { status: 400 }
-      )
+      );
     }
 
-    // Check if class exists and user has permission
+    // 🔹 Verifica se a turma existe
     const class_ = await prisma.class.findUnique({
       where: { id: classId },
       select: { createdById: true },
-    })
+    });
 
     if (!class_) {
       return NextResponse.json(
-        { error: 'Class not found' },
+        { message: 'Turma não encontrada' },
         { status: 404 }
-      )
+      );
     }
 
-    // Check permissions
+    // 🔹 Verifica permissões do usuário
     if (
       class_.createdById !== session.user.id &&
       session.user.role !== 'ADMIN' &&
-      session.user.role !== 'COORDINATOR'
+      session.user.role !== 'COORDENADOR'
     ) {
       return NextResponse.json(
-        { error: 'Not authorized to view students in this class' },
+        { message: 'Você não tem permissão para visualizar os alunos desta turma' },
         { status: 403 }
-      )
+      );
     }
 
+    // 🔹 Retorna a lista de alunos
     const students = await prisma.student.findMany({
       where: { classId },
-      include: {
-        contacts: true,
-      },
-    })
+      include: { contacts: true },
+    });
 
-    return NextResponse.json(students)
+    return NextResponse.json(students);
   } catch (error) {
-    console.error('Error fetching students:', error)
+    console.error('Erro ao buscar alunos:', error);
+
     return NextResponse.json(
-      { error: 'Failed to fetch students' },
+      { message: 'Erro interno ao buscar alunos' },
       { status: 500 }
-    )
+    );
   }
 }

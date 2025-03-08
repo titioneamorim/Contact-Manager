@@ -98,13 +98,13 @@ const EditClassPage: React.FC<PageProps> = ({ params }) => {
           onClick={() => router.back()}
           className="text-blue-600 hover:text-blue-800 transition-colors"
         >
-          ← Back
+          ← Voltar
         </button>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h1 className="text-2xl font-semibold text-gray-900 mb-6">
-          Edit Class
+          Editar Turma
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -119,7 +119,7 @@ const EditClassPage: React.FC<PageProps> = ({ params }) => {
               htmlFor="name"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Class Name
+              Nome da Turma
             </label>
             <input
               type="text"
@@ -145,8 +145,8 @@ const EditClassPage: React.FC<PageProps> = ({ params }) => {
               defaultValue={class_.status}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
+              <option value="ACTIVE">Ativa</option>
+              <option value="INACTIVE">Inativa</option>
             </select>
           </div>
 
@@ -156,7 +156,7 @@ const EditClassPage: React.FC<PageProps> = ({ params }) => {
               onClick={() => router.back()}
               className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
             >
-              Cancel
+              Cancelar
             </button>
             <button
               type="submit"
@@ -165,7 +165,7 @@ const EditClassPage: React.FC<PageProps> = ({ params }) => {
                 isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
               }`}
             >
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+              {isSubmitting ? 'Salvando...' : 'Salvar'}
             </button>
           </div>
         </form>

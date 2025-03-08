@@ -1,10 +1,10 @@
-import { prisma } from '@/lib/prisma'
-import { ClassWithDetails } from '@/types/database'
-import { getServerSession } from 'next-auth'
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import DeleteButton from './DeleteButton'
+import { prisma } from '@/lib/prisma';
+import { ClassWithDetails } from '@/types/database';
+import { getServerSession } from 'next-auth';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import DeleteButton from './DeleteButton';
 
 async function getClass(id: string): Promise<ClassWithDetails | null> {
   const class_ = await prisma.class.findUnique({
@@ -17,27 +17,23 @@ async function getClass(id: string): Promise<ClassWithDetails | null> {
         },
       },
     },
-  })
+  });
 
-  return class_
+  return class_;
 }
 
-export default async function ClassPage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  const session = await getServerSession(authOptions)
-  const class_ = await getClass(params.id)
+export default async function ClassPage({ params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions);
+  const class_ = await getClass(params.id);
 
   if (!class_) {
-    notFound()
+    notFound();
   }
 
-  const canEdit =
+  const podeEditar =
     session?.user.role === 'ADMIN' ||
     session?.user.role === 'COORDINATOR' ||
-    class_.createdById === session?.user.id
+    class_.createdById === session?.user.id;
 
   return (
     <div>
@@ -46,7 +42,7 @@ export default async function ClassPage({
           href="/dashboard"
           className="text-blue-600 hover:text-blue-800 transition-colors"
         >
-          ← Back to Classes
+          ← Voltar para as Turmas
         </Link>
       </div>
 
@@ -57,7 +53,7 @@ export default async function ClassPage({
               {class_.name}
             </h1>
             <p className="text-gray-600 mt-1">
-              Created by {class_.createdBy.name}
+              Criado por {class_.createdBy.name}
             </p>
           </div>
           <div className="flex items-center space-x-4">
@@ -68,100 +64,81 @@ export default async function ClassPage({
                   : 'bg-red-100 text-red-800'
               }`}
             >
-              {class_.status.toLowerCase()}
+              {class_.status === 'ACTIVE' ? 'Ativa' : 'Inativa'}
             </span>
           </div>
         </div>
 
-        {canEdit && (
+        {podeEditar && (
           <div className="flex justify-between items-center mb-8">
             <div className="flex space-x-4">
               <Link
                 href={`/dashboard/classes/${class_.id}/edit`}
                 className="text-blue-600 hover:text-blue-800 transition-colors"
               >
-                Edit Class
+                Editar Turma
               </Link>
               <Link
                 href={`/dashboard/classes/${class_.id}/students/new`}
                 className="text-green-600 hover:text-green-800 transition-colors"
               >
-                Add Student
+                Adicionar Aluno
               </Link>
             </div>
-            <DeleteButton classId={class_.id} />
+
+            {/* 🔹 Botão Excluir - Apenas para ADMIN */}
+            {session?.user.role === 'ADMIN' && (
+              <DeleteButton classId={class_.id} />
+            )}
           </div>
         )}
 
         <div>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Students ({class_.students.length})
+            Alunos ({class_.students.length})
           </h2>
           <div className="space-y-4">
             {class_.students.map((student) => (
               <div
                 key={student.id}
-                className="border border-gray-200 rounded-lg p-4"
+                className="border border-gray-200 rounded-lg p-4 flex justify-between items-center"
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-medium text-gray-900">
-                      {student.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm">CPF: {student.cpf}</p>
-                    <p className="text-gray-600 text-sm">
-                      Phone: {student.phone}
-                    </p>
-                  </div>
-                  {canEdit && (
-                    <Link
-                      href={`/dashboard/students/${student.id}`}
-                      className="text-blue-600 hover:text-blue-800 transition-colors text-sm"
-                    >
-                      Manage Contacts
-                    </Link>
-                  )}
+                <div>
+                  <h3 className="font-medium text-gray-900 flex items-center">
+                    {student.name}
+                    {podeEditar && (
+                      <Link
+                        href={`/dashboard/students/${student.id}/edit`}
+                        className="ml-2 text-gray-500 hover:text-gray-700"
+                        title="Editar Aluno"
+                      >
+                        ✏️
+                      </Link>
+                    )}
+                  </h3>
+                  <p className="text-gray-600 text-sm">CPF: {student.cpf}</p>
+                  <p className="text-gray-600 text-sm">Telefone: {student.phone}</p>
                 </div>
-                {student.contacts.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">
-                      Recent Contacts
-                    </h4>
-                    <div className="space-y-2">
-                      {student.contacts.slice(0, 2).map((contact) => (
-                        <div
-                          key={contact.id}
-                          className="text-sm text-gray-600"
-                        >
-                          <span
-                            className={`inline-block px-2 py-1 text-xs rounded mr-2 ${
-                              contact.type === 'PHONE'
-                                ? 'bg-blue-100 text-blue-800'
-                                : contact.type === 'EMAIL'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-green-100 text-green-800'
-                            }`}
-                          >
-                            {contact.type.toLowerCase()}
-                          </span>
-                          {contact.description}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                {podeEditar && (
+                  <Link
+                    href={`/dashboard/students/${student.id}`}
+                    className="text-blue-600 hover:text-blue-800 transition-colors text-sm"
+                  >
+                    Gerenciar Contatos
+                  </Link>
                 )}
               </div>
             ))}
 
             {class_.students.length === 0 && (
               <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <p className="text-gray-600">No students in this class yet.</p>
-                {canEdit && (
+                <p className="text-gray-600">Nenhum aluno nesta turma ainda.</p>
+                {podeEditar && (
                   <Link
                     href={`/dashboard/classes/${class_.id}/students/new`}
                     className="text-blue-600 hover:text-blue-800 transition-colors mt-2 inline-block"
                   >
-                    Add the first student
+                    Adicionar o primeiro aluno
                   </Link>
                 )}
               </div>
@@ -170,5 +147,5 @@ export default async function ClassPage({
         </div>
       </div>
     </div>
-  )
+  );
 }

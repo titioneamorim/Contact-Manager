@@ -1,104 +1,100 @@
-'use client'
+'use client';
 
-import { ContactWithStudent } from '@/types/database'
-import { useRouter } from 'next/navigation'
-import { FormEvent, useEffect, useState } from 'react'
+import { ContactWithStudent } from '@/types/database';
+import { useRouter } from 'next/navigation';
+import { FormEvent, useEffect, useState } from 'react';
 
-interface Student {
-  id: string
-  name: string
-  cpf: string
-  phone: string
-  contacts: ContactWithStudent[]
+interface Aluno {
+  id: string;
+  name: string;
+  cpf: string;
+  phone: string;
+  contacts: ContactWithStudent[];
   class: {
-    id: string
-    name: string
-  }
+    id: string;
+    name: string;
+  };
 }
 
-export default function StudentPage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  const router = useRouter()
-  const [student, setStudent] = useState<Student | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [showContactForm, setShowContactForm] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export default function PaginaAluno({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const [aluno, setAluno] = useState<Aluno | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [carregando, setCarregando] = useState(true);
+  const [mostrarFormularioContato, setMostrarFormularioContato] = useState(false);
+  const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
-    fetchStudent()
-  }, [params.id])
+    buscarAluno();
+  }, [params.id]);
 
-  async function fetchStudent() {
+  async function buscarAluno() {
     try {
-      const response = await fetch(`/api/students/${params.id}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch student')
+      const resposta = await fetch(`/api/students/${params.id}`);
+      if (!resposta.ok) {
+        throw new Error('Erro ao buscar aluno.');
       }
-      const data = await response.json()
-      setStudent(data)
-    } catch (error) {
-      setError('Failed to load student details')
+      const dados = await resposta.json();
+      setAluno(dados);
+    } catch (erro) {
+      setErro('Erro ao carregar os detalhes do aluno.');
     } finally {
-      setIsLoading(false)
+      setCarregando(false);
     }
   }
 
-  async function handleContactSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
+  async function handleEnviarContato(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setEnviando(true);
+    setErro(null);
 
-    const formData = new FormData(e.currentTarget)
-    const data = {
+    const formData = new FormData(e.currentTarget);
+    const dados = {
       type: formData.get('type') as 'PHONE' | 'EMAIL' | 'WHATSAPP',
       username: formData.get('username') as string,
       description: formData.get('description') as string,
       studentId: params.id,
-    }
+    };
 
     try {
-      const response = await fetch('/api/contacts', {
+      const resposta = await fetch('/api/contacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
+        body: JSON.stringify(dados),
+      });
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to create contact')
+      if (!resposta.ok) {
+        const erro = await resposta.json();
+        throw new Error(erro.message || 'Erro ao adicionar contato.');
       }
 
-      setShowContactForm(false)
-      fetchStudent() // Refresh student data
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message)
+      setMostrarFormularioContato(false);
+      buscarAluno(); // Atualiza os dados do aluno
+    } catch (erro) {
+      if (erro instanceof Error) {
+        setErro(erro.message);
       } else {
-        setError('An error occurred while creating the contact')
+        setErro('Ocorreu um erro ao adicionar o contato.');
       }
     } finally {
-      setIsSubmitting(false)
+      setEnviando(false);
     }
   }
 
-  if (isLoading) {
+  if (carregando) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-gray-600">Carregando...</div>
       </div>
-    )
+    );
   }
 
-  if (error || !student) {
+  if (erro || !aluno) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="text-red-600">{error || 'Student not found'}</div>
+        <div className="text-red-600">{erro || 'Aluno não encontrado'}</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -108,50 +104,43 @@ export default function StudentPage({
           onClick={() => router.back()}
           className="text-blue-600 hover:text-blue-800 transition-colors"
         >
-          ← Back to Class
+          ← Voltar para a Turma
         </button>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
-              {student.name}
-            </h1>
-            <p className="text-gray-600 mt-1">Class: {student.class.name}</p>
-            <p className="text-gray-600">CPF: {student.cpf}</p>
-            <p className="text-gray-600">Phone: {student.phone}</p>
+            <h1 className="text-2xl font-semibold text-gray-900">{aluno.name}</h1>
+            <p className="text-gray-600 mt-1">Turma: {aluno.class.name}</p>
+            <p className="text-gray-600">CPF: {aluno.cpf}</p>
+            <p className="text-gray-600">Telefone: {aluno.phone}</p>
           </div>
         </div>
 
         <div className="mt-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Contact History
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900">Histórico de Contatos</h2>
             <button
-              onClick={() => setShowContactForm(true)}
+              onClick={() => setMostrarFormularioContato(true)}
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
             >
-              Add Contact
+              Adicionar Contato
             </button>
           </div>
 
-          {showContactForm && (
+          {mostrarFormularioContato && (
             <div className="mb-6 bg-gray-50 p-4 rounded-lg">
-              <form onSubmit={handleContactSubmit} className="space-y-4">
-                {error && (
+              <form onSubmit={handleEnviarContato} className="space-y-4">
+                {erro && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
-                    {error}
+                    {erro}
                   </div>
                 )}
 
                 <div>
-                  <label
-                    htmlFor="type"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Contact Type
+                  <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+                    Tipo de Contato
                   </label>
                   <select
                     id="type"
@@ -159,18 +148,15 @@ export default function StudentPage({
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   >
-                    <option value="PHONE">Phone</option>
-                    <option value="EMAIL">Email</option>
+                    <option value="PHONE">Telefone</option>
+                    <option value="EMAIL">E-mail</option>
                     <option value="WHATSAPP">WhatsApp</option>
                   </select>
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="username"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Contact Person
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                    Nome do Contato
                   </label>
                   <input
                     type="text"
@@ -178,16 +164,13 @@ export default function StudentPage({
                     name="username"
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Name of contact person"
+                    placeholder="Nome do contato"
                   />
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="description"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Description
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                    Descrição
                   </label>
                   <textarea
                     id="description"
@@ -195,26 +178,26 @@ export default function StudentPage({
                     required
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Details about the contact"
+                    placeholder="Detalhes sobre o contato"
                   />
                 </div>
 
                 <div className="flex justify-end space-x-4">
                   <button
                     type="button"
-                    onClick={() => setShowContactForm(false)}
+                    onClick={() => setMostrarFormularioContato(false)}
                     className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
                   >
-                    Cancel
+                    Cancelar
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={enviando}
                     className={`px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                      isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
+                      enviando ? 'opacity-75 cursor-not-allowed' : ''
                     }`}
                   >
-                    {isSubmitting ? 'Adding...' : 'Add Contact'}
+                    {enviando ? 'Adicionando...' : 'Adicionar Contato'}
                   </button>
                 </div>
               </form>
@@ -222,42 +205,32 @@ export default function StudentPage({
           )}
 
           <div className="space-y-4">
-            {student.contacts.map((contact) => (
-              <div
-                key={contact.id}
-                className="border border-gray-200 rounded-lg p-4"
-              >
+            {aluno.contacts.map((contato) => (
+              <div key={contato.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-start mb-2">
                   <span
                     className={`px-2 py-1 text-sm rounded ${
-                      contact.type === 'PHONE'
+                      contato.type === 'PHONE'
                         ? 'bg-blue-100 text-blue-800'
-                        : contact.type === 'EMAIL'
+                        : contato.type === 'EMAIL'
                         ? 'bg-yellow-100 text-yellow-800'
                         : 'bg-green-100 text-green-800'
                     }`}
                   >
-                    {contact.type.toLowerCase()}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    {new Date(contact.createdAt).toLocaleString()}
+                    {contato.type === 'PHONE'
+                      ? 'Telefone'
+                      : contato.type === 'EMAIL'
+                      ? 'E-mail'
+                      : 'WhatsApp'}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">
-                  Contact: {contact.username}
-                </p>
-                <p className="text-gray-700">{contact.description}</p>
+                <p className="text-sm text-gray-600 mb-2">Contato: {contato.username}</p>
+                <p className="text-gray-700">{contato.description}</p>
               </div>
             ))}
-
-            {student.contacts.length === 0 && (
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <p className="text-gray-600">No contact history yet.</p>
-              </div>
-            )}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
