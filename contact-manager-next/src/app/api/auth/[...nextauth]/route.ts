@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { compare } from "bcryptjs";
-import NextAuth, { type NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-export const authOptions: NextAuthOptions = {
+const authOptions = {
   pages: {
     signIn: "/login", // Página de login
   },
@@ -67,5 +67,6 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET, // Certifique-se de que está definido no .env
 };
 
+// 🔹 Exportação correta para Next.js App Router
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
